@@ -387,12 +387,6 @@ export const useLogsData = () => {
           value: `${logs[i].channel} - ${logs[i].channel_name || '[未知]'}`,
         });
       }
-      if (logs[i].request_id) {
-        expandDataLocal.push({
-          key: t('Request ID'),
-          value: logs[i].request_id,
-        });
-      }
       if (other?.ws || other?.audio) {
         expandDataLocal.push({
           key: t('语音输入'),
@@ -479,7 +473,7 @@ export const useLogsData = () => {
           other?.is_model_mapped &&
           other?.upstream_model_name &&
           other?.upstream_model_name !== '';
-        if (modelMapped) {
+        if (modelMapped && isAdminUser) {
           expandDataLocal.push({
             key: t('请求并计费模型'),
             value: logs[i].model_name,
