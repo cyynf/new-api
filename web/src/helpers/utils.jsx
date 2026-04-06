@@ -48,7 +48,7 @@ export function isRoot() {
 
 export function getSystemName() {
   let system_name = localStorage.getItem('system_name');
-  if (!system_name) return 'New API';
+  if (!system_name) return 'TokenHub';
   return system_name;
 }
 
@@ -724,10 +724,10 @@ export const calculateModelPrice = ({
       audioOutputPrice:
         audioInputPrice && hasRatioValue(record.audio_completion_ratio)
           ? formatTokenPrice(
-              inputRatioPriceUSD *
-                Number(record.audio_ratio) *
-                Number(record.audio_completion_ratio),
-            )
+            inputRatioPriceUSD *
+            Number(record.audio_ratio) *
+            Number(record.audio_completion_ratio),
+          )
           : null,
       unitLabel,
       isPerToken: true,
