@@ -182,7 +182,7 @@ export function ApiKeysMutateDrawer({
         }
       } else {
         // Create mode - handle batch creation
-        const count = data.tokenCount || 1
+        const count = data.key?.trim() ? 1 : data.tokenCount || 1
         let successCount = 0
 
         for (let i = 0; i < count; i++) {
@@ -241,6 +241,7 @@ export function ApiKeysMutateDrawer({
     : t('Enter quota in {{currency}}', { currency: currencyLabel })
   const selectedGroup = form.watch('group')
   const unlimitedQuota = form.watch('unlimited_quota')
+  const manualKey = form.watch('key')?.trim()
 
   return (
     <Sheet
@@ -291,6 +292,30 @@ export function ApiKeysMutateDrawer({
                   </FormItem>
                 )}
               />
+
+              {!isUpdate && (
+                <FormField
+                  control={form.control}
+                  name='key'
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>{t('API Key (Optional)')}</FormLabel>
+                      <FormControl>
+                        <Input
+                          {...field}
+                          placeholder={t('Enter a custom key or leave empty')}
+                        />
+                      </FormControl>
+                      <FormDescription>
+                        {t(
+                          'Leave empty to generate a random key automatically'
+                        )}
+                      </FormDescription>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
 
               <FormField
                 control={form.control}
@@ -409,6 +434,7 @@ export function ApiKeysMutateDrawer({
                           {...field}
                           type='number'
                           min='1'
+                          disabled={!!manualKey}
                           placeholder={t('Number of keys to create')}
                           onChange={(e) =>
                             field.onChange(parseInt(e.target.value, 10) || 1)
@@ -416,9 +442,11 @@ export function ApiKeysMutateDrawer({
                         />
                       </FormControl>
                       <FormDescription>
-                        {t(
-                          'Create multiple API keys at once (random suffix will be added to names)'
-                        )}
+                        {manualKey
+                          ? t('Manual key input only supports creating one key')
+                          : t(
+                              'Create multiple API keys at once (random suffix will be added to names)'
+                            )}
                       </FormDescription>
                       <FormMessage />
                     </FormItem>

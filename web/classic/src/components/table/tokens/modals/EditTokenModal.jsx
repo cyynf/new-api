@@ -72,6 +72,7 @@ const EditTokenModal = (props) => {
 
   const getInitValues = () => ({
     name: '',
+    key: '',
     remain_quota: 0,
     remain_amount: 0,
     expired_time: -1,
@@ -219,6 +220,7 @@ const EditTokenModal = (props) => {
     setLoading(true);
     if (isEdit) {
       let { tokenCount: _tc, ...localInputs } = values;
+      delete localInputs.key;
       localInputs.remain_quota = localInputs.unlimited_quota
         ? 0
         : displayAmountToQuota(localInputs.remain_amount);
@@ -251,10 +253,12 @@ const EditTokenModal = (props) => {
         showError(t(message));
       }
     } else {
-      const count = parseInt(values.tokenCount, 10) || 1;
+      const manualKey = values.key?.trim();
+      const count = manualKey ? 1 : parseInt(values.tokenCount, 10) || 1;
       let successCount = 0;
       for (let i = 0; i < count; i++) {
         let { tokenCount: _tc, ...localInputs } = values;
+        localInputs.key = manualKey || undefined;
         const baseName =
           values.name.trim() === '' ? 'default' : values.name.trim();
         if (i !== 0 || values.name.trim() === '') {
@@ -382,6 +386,17 @@ const EditTokenModal = (props) => {
                       showClear
                     />
                   </Col>
+                  {!isEdit && (
+                    <Col span={24}>
+                      <Form.Input
+                        field='key'
+                        label={t('密钥（可选）')}
+                        placeholder={t('输入自定义密钥，留空则自动生成')}
+                        extraText={t('留空将按原逻辑自动生成随机密钥')}
+                        showClear
+                      />
+                    </Col>
+                  )}
                   <Col span={24}>
                     {groups.length > 0 ? (
                       <Form.Select
@@ -495,7 +510,12 @@ const EditTokenModal = (props) => {
                         field='tokenCount'
                         label={t('新建数量')}
                         min={1}
-                        extraText={t('批量创建时会在名称后自动添加随机后缀')}
+                        disabled={!!values.key?.trim()}
+                        extraText={
+                          values.key?.trim()
+                            ? t('手动输入密钥时仅支持创建一个令牌')
+                            : t('批量创建时会在名称后自动添加随机后缀')
+                        }
                         rules={[
                           { required: true, message: t('请输入新建数量') },
                         ]}
@@ -552,7 +572,10 @@ const EditTokenModal = (props) => {
                         ? `▾ ${t('收起原生额度输入')}`
                         : `▸ ${t('使用原生额度输入')}`}
                     </div>
-                    <div style={{ display: showQuotaInput ? 'block' : 'none' }} className='mt-2'>
+                    <div
+                      style={{ display: showQuotaInput ? 'block' : 'none' }}
+                      className='mt-2'
+                    >
                       <Form.InputNumber
                         field='remain_quota'
                         label={t('额度')}
